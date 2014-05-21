@@ -144,12 +144,11 @@ type
     // fields
     FMemoLineCompl, FThisLineCompl: Boolean;
     FConsEmul: TConsoleEmulator;
-    FLogFile: IFileWriter;
+    FLogFile: TFileStream;
     FExitCode: Cardinal;
     FErrorMsg: string;
     // property g/setters
     function GetLogFileName: string;
-    procedure SetLogMaxFileSize(Val: Int64);
     // events
     procedure btnSendCmdClick(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -162,7 +161,6 @@ type
     property ExitCode: Cardinal read FExitCode;
     property ErrorMsg: string read FErrorMsg;
     property LogFileName: string read GetLogFileName;
-    property LogMaxFileSize: Int64 write SetLogMaxFileSize;
     constructor Create(AOwner: TComponent; ATimeout: Cardinal); reintroduce;
     destructor Destroy; override;
     procedure Log(Msg: string);
@@ -929,19 +927,13 @@ end;
 destructor TfrmConsole.Destroy;
 begin
   FreeAndNil(FConsEmul);
-  FLogFile := nil;
+  FreeAndNil(FLogFile);
   inherited;
 end;
 
 function TfrmConsole.GetLogFileName: string;
 begin
   if FLogFile = nil then Result := '' else Result := FLogFile.FileName;
-end;
-
-procedure TfrmConsole.SetLogMaxFileSize(Val: Int64);
-begin
-  if FLogFile <> nil then
-    FLogFile.SetRotateOptions(rmAfterClose, raRenamePatt, Val, '"%0s"_yy-mm-dd', '~%.2d');
 end;
 
 procedure TfrmConsole.btnAbortClick(Sender: TObject);
@@ -964,7 +956,7 @@ begin
   pData := PAnsiChar(Data);
   OemToAnsiBuff(pData, pData, DataLen);
   if FLogFile <> nil then
-    FLogFile.WriteData(PByte(pData), DataLen);
+    FLogFile.WriteBuffer(pData^, DataLen);
   mConsole.Lines.BeginUpdate;
   // если строк в мемо больше максимума, удаляем их
   if mConsole.Lines.Count > MaxMemoLines + 50 then
@@ -1025,8 +1017,6 @@ begin
 
         Log(Format(S_ProcessStatePatt, [DateTimeToStr(Now), '', S_ConsEmulStateLabels[State] + ExitStr]));
         lblState.Caption := lblState.Caption + ExitStr;
-        if FLogFile <> nil then
-          FLogFile.Close; // закрываем файл лога после выполнения команды - чтобы не держать
         if Assigned(OnProcessFinished) then OnProcessFinished(Self, State);
       end;
   end;
@@ -1043,8 +1033,14 @@ function TfrmConsole.Launch(const CmdLine: string; LogFN: string; CurrDir: strin
 begin
   Result := False;
   try
-    // переоткрываем файл либо закрываем и открываем другой
-    FLogFile := FileWriter(LogFN);
+     // если лог-файл другой, закрываем его и создаем заново
+    if LogFN = ''
+      then FLogFile := nil
+      else
+      begin
+        FLogFile := TFileStream.Create(LogFN, fmCreate or fmOpenWrite);
+        FLogFile.Seek( 0, soEnd);
+      end;
     FConsEmul.Launch(CmdLine, CurrDir, EnvVars);
     Result := True;
   except
@@ -1066,7 +1062,7 @@ begin
   mConsole.Lines.Add(Msg);
   MsgAnsi := AnsiString(NL+Msg);
   if FLogFile <> nil then
-    FLogFile.WriteData(PByte(@MsgAnsi[1]), Length(MsgAnsi));
+    FLogFile.WriteBuffer(MsgAnsi[ 1], Length(MsgAnsi));
 end;
 
 function TfrmConsole.IsRunning: Boolean;
