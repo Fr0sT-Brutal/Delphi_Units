@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 380
+  ClientHeight = 360
   ClientWidth = 235
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -35,6 +35,13 @@ object Form1: TForm1
     Width = 56
     Height = 16
     Caption = #1051#1086#1075' '#1092#1072#1081#1083
+  end
+  object Label4: TLabel
+    Left = 8
+    Top = 327
+    Width = 37
+    Height = 16
+    Caption = 'Label4'
   end
   object Memo1: TMemo
     Left = 8
@@ -75,11 +82,20 @@ object Form1: TForm1
   end
   object Button2: TButton
     Left = 88
-    Top = 327
+    Top = 279
     Width = 139
     Height = 34
     Caption = #1047#1072#1087#1091#1089#1082' '#1095#1077#1088#1077#1079' '#1087#1086#1090#1086#1082#1080
     TabOrder = 4
     OnClick = Button2Click
+  end
+  object Button3: TButton
+    Left = 112
+    Top = 319
+    Width = 115
+    Height = 25
+    Caption = 'Minimal demo'
+    TabOrder = 5
+    OnClick = Button3Click
   end
 end

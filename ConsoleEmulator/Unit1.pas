@@ -17,9 +17,12 @@ type
     Edit2: TEdit;
     Label3: TLabel;
     Button2: TButton;
+    Button3: TButton;
+    Label4: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -66,6 +69,34 @@ begin
   stmin.Free;
   stmout.Free;
   cons.Free;
+end;
+
+// minimal demo
+
+procedure TForm1.Button3Click(Sender: TObject);
+var stmout: TStringStream;
+    cons: TConsoleEmulator;
+begin
+  // via Execute
+  stmout:= TStringStream.Create;
+  Execute('cmd /c dir', '', '', nil, stmout, 5);
+  stmout.Position := 0;
+  ShowMessage(stmout.DataString);
+  stmout.Free;
+
+  // via TConsoleEmulator
+  stmout:= TStringStream.Create;
+  cons := TConsoleEmulator.Create(50);
+  cons.OutputStm := stmout;
+  cons.Launch('cmd /c dir');
+  while cons.State = cesRunning do
+  begin
+    Label4.Caption := IntToStr(stmout.Position);
+    Application.ProcessMessages;
+  end;
+  stmout.Position := 0;
+  ShowMessage(stmout.DataString);
+  stmout.Free;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);

@@ -320,6 +320,7 @@ begin
     FreeEnvironmentStrings(pOldEnv);
 
     IntCmdLine := CmdLine; // обеспечиваем изменяемость комстроки - особенности CreateProcessW
+    UniqueString(IntCmdLine);
     if not CreateProcess(nil, PChar(IntCmdLine), @sa, nil, True,
                          CREATE_NEW_CONSOLE{$IFDEF UNICODE} or CREATE_UNICODE_ENVIRONMENT{$ENDIF},
                          PChar(EnvVars), PChar(CurrDir), si, pi) then
@@ -623,6 +624,7 @@ begin
     FreeEnvironmentStrings(pOldEnv);
 
     FCmdLine := CmdLine; // обеспечиваем изменяемость комстроки - особенности CreateProcessW
+    UniqueString(FCmdLine);
     if not CreateProcess(nil, PChar(FCmdLine), @sa, nil, True,
                          CREATE_NEW_CONSOLE{$IFDEF UNICODE} or CREATE_UNICODE_ENVIRONMENT{$ENDIF},
                          PChar(EnvVars), PChar(CurrDir), si, pi) then
