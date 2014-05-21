@@ -45,7 +45,7 @@ uses Classes, Windows, SysUtils, Messages, StrUtils,
      {$IFDEF ConEm_VCL}
      ExtCtrls, Forms, Graphics, Controls, StdCtrls,
      {$ENDIF}
-     IceUtils;
+     Utils;
 
 {$REGION 'Notes'}
 {========= IMPORTANT NOTES ON PIPES =========
@@ -770,6 +770,7 @@ end;
 
 // по таймеру периодически проверять состояние запущенного процесса
 // и считывать выводимую в трубу информацию
+
 function TConsoleEmulator.WndProc(wnd: HWND; msg: UINT; wPar: WPARAM; lPar: LPARAM): LRESULT;
 begin
   Result := 0;
